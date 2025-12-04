@@ -24,14 +24,6 @@ func playerWin() -> Bool {
     return true
 }
 
-func playerSwitch() {
-    if playerState {
-        playerState = false
-    } else {
-        playerState = true
-    }
-}
-
 func enterMove() {
     var row = 0
     var column = 0
@@ -62,7 +54,7 @@ func enterMove() {
     } else {
         board[row][column] = false
     }
-    playerSwitch()
+    playerState.toggle()
 }
 
 func printField() {
@@ -70,12 +62,10 @@ func printField() {
     for row in board {
         fieldFormattedString += "|"
         for cell in row {
-            if cell == true {
-                fieldFormattedString += symbols.player1
-            } else if cell == false {
-                fieldFormattedString += symbols.player2
-            } else {
-                fieldFormattedString += symbols.nothing
+            switch cell {
+            case true: fieldFormattedString += symbols.player1
+            case false: fieldFormattedString += symbols.player2
+            case nil: fieldFormattedString += symbols.nothing
             }
             fieldFormattedString += "|"
         }
