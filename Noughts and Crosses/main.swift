@@ -15,11 +15,19 @@ var board: [[Bool?]] = []
 
 var playerState = true
 
+func currentPlayerMove() {
+    if playerState {
+        print("\(player1Name)'s turn")
+    } else {
+        print("\(player2Name)'s turn")
+    }
+}
+
 func playerWin() -> Bool {
     if playerState {
-        print("\(player1Name) has won!")
+        print("\n\(player1Name) has won!")
     } else {
-        print("\(player2Name) has won!")
+        print("\n\(player2Name) has won!")
     }
     return true
 }
@@ -29,7 +37,7 @@ func enterMove() {
     var column = 0
     print("Enter the row number to place your mark")
     while let rowInput = readLine() {
-        guard let rowInt = Int(rowInput), rowInt <= board.count else {
+        guard let rowInt = Int(rowInput), rowInt <= board.count, rowInt > 0 else {
             print("Please enter a valid number")
             continue
         }
@@ -38,7 +46,7 @@ func enterMove() {
     }
     print("Enter the column number to place your mark")
     while let columnInput = readLine() {
-        guard let columnInt = Int(columnInput), columnInt <= board.count else {
+        guard let columnInt = Int(columnInput), columnInt <= board.count, columnInt > 0 else {
             print("Please enter a valid number")
             continue
         }
@@ -54,7 +62,6 @@ func enterMove() {
     } else {
         board[row][column] = false
     }
-    playerState.toggle()
 }
 
 func printField() {
@@ -140,7 +147,7 @@ while true {
     player2Name = enterPlayer2Name
     print("Please enter the size of the board:")
     while let boardSizeString = readLine() {
-        guard let boardSizeInt = Int(boardSizeString) else {
+        guard let boardSizeInt = Int(boardSizeString), boardSizeInt >= 3 else {
             print("Invalid input. Please enter correct size of the board")
             continue
         }
@@ -150,16 +157,12 @@ while true {
     board = Array(repeating: Array(repeating: nil, count: boardSize), count: boardSize)
     while true {
         printField()
-        switch playerState {
-        case true:
-            print("\(player1Name)'s turn")
-        case false:
-            print("\(player2Name)'s turn")
-        }
+        currentPlayerMove()
         enterMove()
         if checkWinRow() || checkWinColumn() || checkWinCross() {
             printField()
             break
         }
+        playerState.toggle()
     }
 }
