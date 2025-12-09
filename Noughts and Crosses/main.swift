@@ -13,55 +13,58 @@ var boardSize = 0
 
 var board: [[Bool?]] = []
 
-var playerState = false
+var playerState = true
 
-func currentPlayerMove() {
+func currentPlayerText(_ playerText: String) -> String {
     if playerState {
-        print("\(player1Name)'s turn")
+        return "\(player1Name + playerText)"
     } else {
-        print("\(player2Name)'s turn")
+        return "\(player2Name + playerText)"
     }
 }
 
-func playerWin() -> Bool {
+func allSame(_ elements: [Bool?]) -> Bool {
     if playerState {
-        print("\n\(player1Name) has won!")
+        return elements.allSatisfy({ $0 == true })
     } else {
-        print("\n\(player2Name) has won!")
+        return elements.allSatisfy({ $0 == false })
     }
-    return true
 }
 
-func enterMove() {
+func enterValue(targetVar: inout Int, limit: Int) {
+    while let input = readLine() {
+        guard let inputInt = Int(input), inputInt >= limit else {
+            print("Please enter a valid value")
+            continue
+        }
+        targetVar = inputInt
+        break
+    }
+}
+
+func enterMove() -> Bool {
     var row = 0
     var column = 0
     print("Enter the row number to place your mark")
-    while let rowInput = readLine() {
-        guard let rowInt = Int(rowInput), rowInt <= board.count, rowInt > 0 else {
-            print("Please enter a valid number")
-            continue
-        }
-        row = rowInt - 1
-        break
-    }
+    enterValue(targetVar: &row, limit: 1)
     print("Enter the column number to place your mark")
-    while let columnInput = readLine() {
-        guard let columnInt = Int(columnInput), columnInt <= board.count, columnInt > 0 else {
-            print("Please enter a valid number")
-            continue
-        }
-        column = columnInt - 1
-        break
+    enterValue(targetVar: &column, limit: 1)
+    if row > boardSize || column > boardSize {
+        print("That spot is not on the board, please choose another.")
+        return false
     }
-    if board[row][column] != nil {
+    let rowIndex = row - 1
+    let columnIndex = column - 1
+    if board[rowIndex][columnIndex] != nil {
         print("That spot is already taken, please choose another.")
-        return
+        return false
     }
     if playerState {
-        board[row][column] = true
+        board[rowIndex][columnIndex] = true
     } else {
-        board[row][column] = false
+        board[rowIndex][columnIndex] = false
     }
+    return true
 }
 
 func printField() {
@@ -83,10 +86,8 @@ func printField() {
 
 func checkWinRow() -> Bool {
     for row in board {
-        let allTrueRow = row.allSatisfy({ $0 == true })
-        let allFalseRow = row.allSatisfy({ $0 == false })
-        if !row.contains(nil) && (allTrueRow || allFalseRow) {
-            return playerWin()
+        if !row.contains(nil) && allSame(row) {
+            return true
         }
     }
     return false
@@ -98,10 +99,8 @@ func checkWinColumn() -> Bool {
         for row in board {
             columnElements.append(row[rowCount])
         }
-        let allTrueСolumnElements = columnElements.allSatisfy({ $0 == true })
-        let allFalseСolumnElements = columnElements.allSatisfy({ $0 == false })
-        if (allTrueСolumnElements || allFalseСolumnElements) && columnElements.count == board.count {
-            return playerWin()
+        if allSame(columnElements) && columnElements.count == board.count {
+            return true
         }
     }
     return false
@@ -116,12 +115,9 @@ func checkWinCross() -> Bool {
         crossAux.append(row[board.count - 1 - crossCount])
         crossCount += 1
     }
-    let allTrueCrossMain = crossMain.allSatisfy({ $0 == true })
-    let allFalseCrossMain = crossMain.allSatisfy({ $0 == false })
-    let allTrueCrossAux = crossAux.allSatisfy({ $0 == true })
-    let allFalseCrossAux = crossAux.allSatisfy({ $0 == false })
-    if ((allTrueCrossMain || allFalseCrossMain) && crossMain.count == board.count) || ((allTrueCrossAux || allFalseCrossAux) && crossAux.count == board.count) {
-        return playerWin()
+    if (allSame(crossMain) && crossMain.count == board.count)
+        || (allSame(crossAux) && crossAux.count == board.count) {
+        return true
     }
     return false
 }
@@ -146,22 +142,17 @@ while true {
     player1Name = enterPlayer1Name
     player2Name = enterPlayer2Name
     print("Please enter the size of the board:")
-    while let boardSizeString = readLine() {
-        guard let boardSizeInt = Int(boardSizeString), boardSizeInt >= 3 else {
-            print("Invalid input. Please enter correct size of the board")
-            continue
-        }
-        boardSize = boardSizeInt
-        break
-    }
+    enterValue(targetVar: &boardSize, limit: 3)
     board = Array(repeating: Array(repeating: nil, count: boardSize), count: boardSize)
     while true {
         printField()
-        if checkWinRow() || checkWinColumn() || checkWinCross() {
-            break
+        print(currentPlayerText("'s turn"))
+        if enterMove() {
+            if checkWinRow() || checkWinColumn() || checkWinCross() {
+                print(currentPlayerText(" has won!"))
+                break
+            }
+            playerState.toggle()
         }
-        playerState.toggle()
-        currentPlayerMove()
-        enterMove()
     }
 }
