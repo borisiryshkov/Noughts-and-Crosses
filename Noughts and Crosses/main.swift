@@ -13,7 +13,7 @@ var boardSize = 0
 
 var board: [[Bool?]] = []
 
-var playerState = true
+var playerState = false
 
 func currentPlayerMove() {
     if playerState {
@@ -157,12 +157,11 @@ while true {
     board = Array(repeating: Array(repeating: nil, count: boardSize), count: boardSize)
     while true {
         printField()
-        currentPlayerMove()
-        enterMove()
         if checkWinRow() || checkWinColumn() || checkWinCross() {
-            printField()
             break
         }
         playerState.toggle()
+        currentPlayerMove()
+        enterMove()
     }
 }
