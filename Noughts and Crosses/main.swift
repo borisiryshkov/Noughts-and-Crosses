@@ -24,11 +24,7 @@ func currentPlayerText(_ playerText: String) -> String {
 }
 
 func allSame(_ elements: [Bool?]) -> Bool {
-    if playerState {
-        return elements.allSatisfy({ $0 == true })
-    } else {
-        return elements.allSatisfy({ $0 == false })
-    }
+    return elements.allSatisfy({ $0 == true }) || elements.allSatisfy({ $0 == false })
 }
 
 func enterValue(targetVar: inout Int, limit: Int) {
@@ -86,7 +82,7 @@ func printField() {
 
 func checkWinRow() -> Bool {
     for row in board {
-        if !row.contains(nil) && allSame(row) {
+        if allSame(row) {
             return true
         }
     }
@@ -99,7 +95,7 @@ func checkWinColumn() -> Bool {
         for row in board {
             columnElements.append(row[rowCount])
         }
-        if allSame(columnElements) && columnElements.count == board.count {
+        if allSame(columnElements) {
             return true
         }
     }
@@ -115,8 +111,7 @@ func checkWinCross() -> Bool {
         crossAux.append(row[board.count - 1 - crossCount])
         crossCount += 1
     }
-    if (allSame(crossMain) && crossMain.count == board.count)
-        || (allSame(crossAux) && crossAux.count == board.count) {
+    if allSame(crossMain) || allSame(crossAux) {
         return true
     }
     return false
@@ -149,6 +144,7 @@ while true {
         print(currentPlayerText("'s turn"))
         if enterMove() {
             if checkWinRow() || checkWinColumn() || checkWinCross() {
+                printField()
                 print(currentPlayerText(" has won!"))
                 break
             }
